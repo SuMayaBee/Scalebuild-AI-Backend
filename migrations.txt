@@ -1,0 +1,2 @@
+alembic revision --autogenerate -m "comments"
+alembic upgrade head
