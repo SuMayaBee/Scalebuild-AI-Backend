@@ -15,11 +15,11 @@ def get_db():
     finally:
         db.close()
 
-@router.post("/signup")
+@router.post("/signup", response_model=schemas.UserRead)
 def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db_user = crud.get_user_by_email(db, user.email)
     if db_user:
-        return {"success": False, "message": "Email is already registered"}
+        raise HTTPException(status_code=400, detail="Email is already registered")
     new_user = crud.create_user(db, user.email, user.password)
     return new_user
 
