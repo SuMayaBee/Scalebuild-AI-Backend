@@ -4,7 +4,7 @@ from app.core.database import SessionLocal
 from app.auth import schemas, crud
 from app.core.security import create_access_token
 from app.auth.models import User
-import secrets
+import random
 
 router = APIRouter()
 
@@ -36,7 +36,8 @@ def forgot_password(request: schemas.ForgotPasswordRequest, db: Session = Depend
     user = crud.get_user_by_email(db, request.email)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    token = secrets.token_urlsafe(32)
+    # Generate an 8-digit numeric reset token
+    token = str(random.randint(10000000, 99999999))
     crud.set_reset_token(db, user, token)
     return {"msg": "Password reset token generated", "token": token}
 
