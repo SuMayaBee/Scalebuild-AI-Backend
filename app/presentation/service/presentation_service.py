@@ -170,9 +170,9 @@ Choose ONE different layout for each slide:
 10. IMAGES: Most slides needs at least one
 ```xml
 <!-- Good image queries (detailed, specific): -->
-<IMG query="futuristic smart city with renewable energy infrastructure and autonomous vehicles in morning light" src="https://storage.googleapis.com/deck123/futuristic_smart_city_with_renewable_energy_infrastructure_and_autonomous_vehicles_in_morning_light.png" />
-<IMG query="close-up of microchip with circuit board patterns in blue and gold tones" src="https://storage.googleapis.com/deck123/close-up_of_microchip_with_circuit_board_patterns_in_blue_and_gold_tones.png" />
-<IMG query="diverse team of professionals collaborating in modern office with data visualizations" src="https://storage.googleapis.com/deck123/diverse_team_of_professionals_collaborating_in_modern_office_with_data_visualizations.png" />
+<IMG query="futuristic smart city with renewable energy infrastructure and autonomous vehicles in morning light" src="https://storage.googleapis.com/deck123/presentation_images/futuristic_smart_city_with_renewable_energy_infrastructure_and_autonomous_vehicles_in_morning_light.png" />
+<IMG query="close-up of microchip with circuit board patterns in blue and gold tones" src="https://storage.googleapis.com/deck123/presentation_images/close-up_of_microchip_with_circuit_board_patterns_in_blue_and_gold_tones.png" />
+<IMG query="diverse team of professionals collaborating in modern office with data visualizations" src="https://storage.googleapis.com/deck123/presentation_images/diverse_team_of_professionals_collaborating_in_modern_office_with_data_visualizations.png" />
 
 <!-- NOT just: "city", "microchip", "team meeting" -->
 ```
