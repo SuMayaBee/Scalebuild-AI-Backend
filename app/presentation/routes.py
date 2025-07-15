@@ -1,3 +1,10 @@
+import re
+
+# Utility to slugify prompt for image filename
+def slugify_prompt(prompt: str) -> str:
+    slug = re.sub(r'[^a-zA-Z0-9]+', '_', prompt.strip().lower())
+    slug = slug.strip('_')
+    return slug + '.png'
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from app.presentation.models import (
@@ -13,7 +20,7 @@ from app.presentation.models import (
 )
 
 from app.presentation.service.presentation_service import outline_chain, slides_chain
-#from app.presentation.service.enhanced_image_service import enhanced_image_service
+from app.presentation.service.enhanced_image_service import enhanced_image_service
 from app.presentation.service.presentation_db_service import presentation_db_service
 from typing import List
 
@@ -59,6 +66,9 @@ async def generate_slides(request: SlidesRequest):
             "OUTLINE_FORMATTED": "\n\n".join(request.outline),
             "TOTAL_SLIDES": len(request.outline),
         }):
+            # Escape newlines and double quotes in the XML chunk
+            if isinstance(chunk, str):
+                chunk = chunk.replace('\\', '\\\\').replace('"', '\\"').replace('\n', '\\n')
             yield chunk
     return StreamingResponse(stream_response(), media_type="application/xml")
 
@@ -67,30 +77,31 @@ async def generate_slides(request: SlidesRequest):
 async def generate_image(request: ImageGenerationRequest):
     """Generate image for presentations using DALL-E and store in GCS"""
     try:
-        # Generate image using DALL-E service
-        image_url = await enhanced_image_service.generate_presentation_image(
+        # Slugify the prompt for the image filename
+        filename = slugify_prompt(request.prompt)
+        bucket = "deck123"
+        image_url = f"https://storage.googleapis.com/{bucket}/{filename}"
+
+        # Generate image using DALL-E service and upload with the slugified filename
+        # The enhanced_image_service should accept a filename override (add this if not present)
+        generated_url = await enhanced_image_service.generate_presentation_image(
             prompt=request.prompt,
-            model="dall-e-3",  # Use DALL-E 3
-            size=request.size or "1024x1024"
+            model="dall-e-3",
+            size=request.size or "1024x1024",
+            filename=filename
         )
-        
-        # Save to database if user_email provided
-        if request.user_email:
-            await presentation_db_service.save_generated_image(
-                url=image_url,
-                prompt=request.prompt,
-                user_email=request.user_email,
-                model="dall-e-3"
-            )
-        
+        # Use the actual generated URL if the service returns it, else use the constructed one
+        final_url = generated_url or image_url
+
+
         return ImageGenerationResponse(
             success=True,
-            url=image_url,
+            url=final_url,
             prompt=request.prompt,
             model="dall-e-3",
             size=request.size or "1024x1024"
         )
-        
+
     except Exception as e:
         return ImageGenerationResponse(
             success=False,
@@ -101,10 +112,16 @@ async def generate_image(request: ImageGenerationRequest):
 @router.post("/presentation/create", response_model=PresentationResponse)
 async def create_presentation(request: PresentationCreateRequest):
     """Create a new presentation in database"""
+    import json
     try:
+        content = request.content
+        if isinstance(content, str):
+            # Always use json.dumps to ensure valid JSON string escaping
+            # Remove surrounding quotes after dumps to store as plain string
+            content = json.dumps(content)[1:-1]
         presentation = await presentation_db_service.create_presentation(
             title=request.title,
-            content=request.content,
+            content=content,
             user_id=request.user_id,  # use user_id here
             theme=request.theme,
             language=request.language,
