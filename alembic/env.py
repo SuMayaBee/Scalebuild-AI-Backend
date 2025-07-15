@@ -16,7 +16,8 @@ config.set_main_option('sqlalchemy.url', os.getenv('DATABASE_URL', ''))
 
 # Import your Base
 from app.core.database import Base
-from app.auth import models  # Ensure models are registered with Base
+from app.auth.db_models import User  # Ensure User model is registered with Base
+from app.presentation.db_models import Presentation  # Ensure Presentation model is registered with Base
 
 target_metadata = Base.metadata
 

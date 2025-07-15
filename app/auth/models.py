@@ -9,8 +9,4 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     reset_token = Column(String, nullable=True)
 
-class Presentation(Base):
-    __tablename__ = "presentation"
-    id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, nullable=False)
-    description = Column(Text, nullable=True)
+

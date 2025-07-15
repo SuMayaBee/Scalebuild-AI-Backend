@@ -114,3 +114,182 @@ This is the FastAPI backend for ScalebuildAI, using SQLAlchemy ORM and NeonDB (P
 
 ---
 
+## Presentation Endpoints
+
+### 1. Generate Presentation Outline
+- **POST** `/presentation/outline`
+- **Request Body (JSON):**
+  ```json
+  {
+    "prompt": "AI for business",
+    "numberOfCards": 5,
+    "language": "English"
+  }
+  ```
+- **Response:**
+  Streamed plain text outline.
+
+### 2. Generate Presentation Slides
+- **POST** `/presentation/generate`
+- **Request Body (JSON):**
+  ```json
+  {
+    "title": "AI in Business",
+    "outline": [
+      "Introduction to AI in Business",
+      "Types of AI Applications in Business",
+      "Enhancing Decision-Making with AI",
+      "AI and Customer Experience",
+      "Ethical Considerations and Future of AI in Business"
+    ],
+    "language": "English",
+    "tone": "Professional"
+  }
+  ```
+- **Response:**
+  Streamed XML (application/xml).
+
+### 3. Create Presentation
+- **POST** `/presentation/create`
+- **Request Body (JSON):**
+  ```json
+  {
+    "title": "AI in Business",
+    "content": {
+      "xml": "<PRESENTATION>...</PRESENTATION>"
+    },
+    "theme": "default",
+    "language": "English",
+    "tone": "Professional",
+    "user_id": 1
+  }
+  ```
+- **Response (JSON):**
+  ```json
+  {
+    "id": "1",
+    "title": "AI in Business",
+    "content": {
+      "xml": "<PRESENTATION>...</PRESENTATION>"
+    },
+    "theme": "default",
+    "language": "English",
+    "tone": "Professional",
+    "userId": "1",
+    "createdAt": "2025-07-15T12:00:00Z",
+    "updatedAt": "2025-07-15T12:00:00Z",
+    "isPublic": false,
+    "slug": null
+  }
+  ```
+
+### 4. Get Presentation by ID
+- **GET** `/presentation/{presentation_id}`
+- **Response:** Same as above.
+
+### 5. Update Presentation
+- **PUT** `/presentation/{presentation_id}`
+- **Request Body (JSON):**
+  ```json
+  {
+    "content": {
+      "xml": "<PRESENTATION>...</PRESENTATION>"
+    },
+    "title": "AI in Business - Updated"
+  }
+  ```
+- **Response:** Same as above.
+
+### 6. Get All Presentations for a User
+- **GET** `/presentation/user/{user_email}`
+- **Response:**
+  ```json
+  [
+    {
+      "id": "1",
+      "title": "AI in Business",
+      "content": {
+        "xml": "<PRESENTATION>...</PRESENTATION>"
+      },
+      "theme": "default",
+      "language": "English",
+      "tone": "Professional",
+      "userId": "1",
+      "createdAt": "2025-07-15T12:00:00Z",
+      "updatedAt": "2025-07-15T12:00:00Z",
+      "isPublic": false,
+      "slug": null
+    }
+  ]
+  ```
+
+### 7. Delete Presentation
+- **DELETE** `/presentation/{presentation_id}`
+- **Response (JSON):**
+  ```json
+  { "message": "Presentation deleted successfully" }
+  ```
+
+### 8. Generate Image for Presentation
+- **POST** `/presentation/generate-image`
+- **Request Body (JSON):**
+  ```json
+  {
+    "prompt": "A futuristic business meeting",
+    "user_email": "user@example.com",
+    "size": "1024x1024",
+    "quality": "hd",
+    "context": "presentation cover"
+  }
+  ```
+- **Response (JSON):**
+  ```json
+  {
+    "success": true,
+    "url": "https://your-bucket/image.png",
+    "prompt": "A futuristic business meeting",
+    "model": "dall-e-3",
+    "size": "1024x1024",
+    "quality": "hd",
+    "filename": "image.png"
+  }
+  ```
+
+### 9. Get User Images
+- **GET** `/presentation/images/{user_email}`
+- **Response (JSON):**
+  ```json
+  [
+    {
+      "id": "img1",
+      "url": "https://your-bucket/image.png",
+      "prompt": "A futuristic business meeting",
+      "model": "dall-e-3",
+      "size": "1024x1024",
+      "quality": "hd",
+      "filename": "image.png",
+      "userId": "1",
+      "createdAt": "2025-07-15T12:00:00Z"
+    }
+  ]
+  ```
+
+### 10. Get Image Info by URL
+- **GET** `/presentation/image-info?url=https://your-bucket/image.png`
+- **Response (JSON):**
+  ```json
+  {
+    "id": "img1",
+    "url": "https://your-bucket/image.png",
+    "prompt": "A futuristic business meeting",
+    "model": "dall-e-3",
+    "size": "1024x1024",
+    "quality": "hd",
+    "filename": "image.png",
+    "userId": "1",
+    "createdAt": "2025-07-15T12:00:00Z"
+  }
+  ```
+
+---
+

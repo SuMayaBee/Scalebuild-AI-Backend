@@ -21,3 +21,5 @@ Thumbs.db
 
 # Database
 *.sqlite3
+
+key1.json
