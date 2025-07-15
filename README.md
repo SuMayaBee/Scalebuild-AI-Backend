@@ -235,23 +235,21 @@ This is the FastAPI backend for ScalebuildAI, using SQLAlchemy ORM and NeonDB (P
 - **Request Body (JSON):**
   ```json
   {
-    "prompt": "A futuristic business meeting",
-    "user_email": "user@example.com",
-    "size": "1024x1024",
-    "quality": "hd",
-    "context": "presentation cover"
+    "prompt": "aerial view of solar panels and wind turbines working harmoniously in a green landscape",
+    "size": "1024x1024"
   }
   ```
 - **Response (JSON):**
   ```json
   {
     "success": true,
-    "url": "https://your-bucket/image.png",
-    "prompt": "A futuristic business meeting",
+    "url": "https://storage.googleapis.com/deck123/presentation_images/aerial_view_of_solar_panels_and_wind_turbines_working_harmoniously_in_a_green_landscape.png",
+    "prompt": "aerial view of solar panels and wind turbines working harmoniously in a green landscape",
     "model": "dall-e-3",
     "size": "1024x1024",
-    "quality": "hd",
-    "filename": "image.png"
+    "quality": null,
+    "filename": null,
+    "error": null
   }
   ```
 
