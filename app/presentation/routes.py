@@ -28,10 +28,17 @@ router = APIRouter()
 
 # Helper function to map SQLAlchemy Presentation model to PresentationResponse
 def to_presentation_response(presentation):
+    import json
+    content = presentation.content
+    if isinstance(content, str):
+        try:
+            content = json.loads(content)
+        except Exception:
+            content = {"slides": []}
     return PresentationResponse(
         id=str(presentation.id),
         title=presentation.title,
-        content=presentation.content,
+        content=content,
         theme=presentation.theme,
         language=presentation.language,
         tone=presentation.tone,
