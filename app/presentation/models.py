@@ -43,6 +43,7 @@ class PresentationResponse(BaseModel):
 # Image generation models
 class ImageGenerationRequest(BaseModel):
     prompt: str
+    presentation_id: Optional[int] = None  # Added to link image to presentation
     user_email: Optional[str] = None
     size: Optional[str] = "1792x1024"  # Default to landscape for slides
     quality: Optional[str] = "hd"
@@ -57,6 +58,17 @@ class ImageGenerationResponse(BaseModel):
     quality: Optional[str] = None
     filename: Optional[str] = None
     error: Optional[str] = None
+
+# Presentation Image models
+class PresentationImageResponse(BaseModel):
+    id: int
+    presentation_id: int
+    image_url: str
+    prompt: str
+    filename: Optional[str] = None
+    model: str
+    size: str
+    created_at: datetime
 
 class GeneratedImageResponse(BaseModel):
     id: str

@@ -5,8 +5,10 @@ def slugify_prompt(prompt: str) -> str:
     slug = re.sub(r'[^a-zA-Z0-9]+', '_', prompt.strip().lower())
     slug = slug.strip('_')
     return slug + '.png'
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import StreamingResponse
+from sqlalchemy.orm import Session
+from app.core.database import get_db
 from app.presentation.models import (
     OutlineRequest, 
     SlidesRequest, 
@@ -16,12 +18,15 @@ from app.presentation.models import (
     ImageGenerationRequest,
     ImageGenerationResponse,
     GeneratedImageResponse,
-    UserResponse
+    UserResponse,
+    PresentationImageResponse
 )
 
 from app.presentation.service.presentation_service import outline_chain, slides_chain
 from app.presentation.service.enhanced_image_service import enhanced_image_service
 from app.presentation.service.presentation_db_service import presentation_db_service
+from app.presentation.service.crud import create_presentation_image, get_presentation_images
+from app.presentation.db_models import Presentation
 from typing import List
 
 router = APIRouter()
@@ -81,8 +86,8 @@ async def generate_slides(request: SlidesRequest):
 
 # New image generation endpoint (replaces Together AI)
 @router.post("/presentation/generate-image", response_model=ImageGenerationResponse)
-async def generate_image(request: ImageGenerationRequest):
-    """Generate image for presentations using DALL-E and store in GCS"""
+async def generate_image(request: ImageGenerationRequest, db: Session = Depends(get_db)):
+    """Generate image for presentations using DALL-E and store in GCS and database"""
     try:
         # Slugify the prompt for the image filename
         filename = slugify_prompt(request.prompt)
@@ -100,13 +105,25 @@ async def generate_image(request: ImageGenerationRequest):
         # Use the actual generated URL if the service returns it, else use the constructed one
         final_url = generated_url or image_url
 
+        # Save image to database if presentation_id is provided
+        if request.presentation_id:
+            create_presentation_image(
+                db=db,
+                presentation_id=request.presentation_id,
+                image_url=final_url,
+                prompt=request.prompt,
+                filename=filename,
+                model="dall-e-3",
+                size=request.size or "1024x1024"
+            )
 
         return ImageGenerationResponse(
             success=True,
             url=final_url,
             prompt=request.prompt,
             model="dall-e-3",
-            size=request.size or "1024x1024"
+            size=request.size or "1024x1024",
+            filename=filename
         )
 
     except Exception as e:
@@ -187,3 +204,24 @@ async def get_image_info(url: str):
     if not image:
         raise HTTPException(status_code=404, detail="Image not found")
     return GeneratedImageResponse(**image)
+
+# Presentation Image endpoints
+@router.get("/presentation/{presentation_id}/images", response_model=List[PresentationImageResponse])
+async def get_presentation_images_endpoint(presentation_id: int, db: Session = Depends(get_db)):
+    """Get all images for a specific presentation"""
+    try:
+        images = get_presentation_images(db, presentation_id)
+        return [
+            PresentationImageResponse(
+                id=img.id,
+                presentation_id=img.presentation_id,
+                image_url=img.image_url,
+                prompt=img.prompt,
+                filename=img.filename,
+                model=img.model,
+                size=img.size,
+                created_at=img.created_at
+            ) for img in images
+        ]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
