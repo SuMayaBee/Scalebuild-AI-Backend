@@ -5,10 +5,10 @@ from app.presentation.routes import router as presentation_router
 
 app = FastAPI()
 
-# Allow CORS for Next.js frontend on port 3000
+# Allow CORS for Next.js frontend on port 3000 and production
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["http://localhost:3000", "https://ai-digital-business-builder.vercel.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
