@@ -3,7 +3,7 @@ from langchain.prompts import PromptTemplate
 from langchain.schema.output_parser import StrOutputParser
 from openai import OpenAI
 import base64
-from services.storage_service import upload_to_gcs
+from app.core.storage_service import upload_to_gcs
 import io
 import os
 import json
@@ -262,9 +262,7 @@ async def generate_logo_image(logo_title: str, logo_vision: str, color_palette_n
             file_name = f"logo_{safe_title.replace(' ', '_')[:30]}.png"
             file_obj = io.BytesIO(image_data)
 
-            bucket_name = os.getenv("GCS_BUCKET_NAME")
-            if not bucket_name:
-                raise Exception("GCS_BUCKET_NAME environment variable is not set")
+            bucket_name = os.getenv("GCS_BUCKET_NAME", "deck123")
 
             # Upload to Google Cloud Storage
             public_url = upload_to_gcs(file_obj, file_name, "image/png", bucket_name)

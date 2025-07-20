@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional, Dict, Any, List
+from datetime import datetime
 
 class ColorPalette(BaseModel):
     name: str
@@ -10,6 +11,7 @@ class LogoRequest(BaseModel):
     logo_vision: str  # Describe your logo vision
     color_palette_name: str  # Name from the predefined color palettes
     logo_style: str  # Cartoon Logo, App Logo, Modern Mascot Logos, etc.
+    user_id: int  # Added user_id to link logo to user
 
 class LogoDesignResponse(BaseModel):
     design_specification: Dict[str, Any]
@@ -37,3 +39,26 @@ class CompleteLogoResponse(BaseModel):
     logo_image_url: str
     enhanced_prompt: str
     image_model: str
+
+# Database response models
+class LogoResponse(BaseModel):
+    id: int
+    user_id: int
+    logo_image_url: str
+    remove_bg_logo_image_url: Optional[str] = None
+    content: Optional[Dict[str, Any]] = None
+    logo_title: str
+    logo_vision: Optional[str] = None
+    color_palette_name: Optional[str] = None
+    logo_style: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+
+class RemoveBackgroundRequest(BaseModel):
+    logo_id: int
+
+class RemoveBackgroundResponse(BaseModel):
+    success: bool
+    logo_id: int
+    remove_bg_logo_image_url: Optional[str] = None
+    error: Optional[str] = None
