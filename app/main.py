@@ -4,6 +4,7 @@ from app.auth.routes import router as auth_router
 from app.presentation.routes import router as presentation_router
 from app.logo.routes import router as logo_router
 from app.document_generation.routes import router as document_router
+from app.short_video.routes import router as short_video_router
 
 app = FastAPI()
 
@@ -20,3 +21,4 @@ app.include_router(auth_router, prefix="/auth", tags=["auth"])
 app.include_router(presentation_router, prefix="/presentation", tags=["presentation"])
 app.include_router(logo_router, tags=["logo"])
 app.include_router(document_router, tags=["documents"])
+app.include_router(short_video_router, tags=["short-video"])
