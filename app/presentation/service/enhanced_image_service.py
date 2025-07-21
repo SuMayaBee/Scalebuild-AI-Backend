@@ -34,15 +34,10 @@ class PresentationImageService:
             "universe_domain": os.getenv("UNIVERSE_DOMAIN"),
         }
 
-        # Remove any None values (in case some env vars are missing)
-        service_account_info = {k: v for k, v in service_account_info.items() if v is not None}
-
-        try:
-            credentials = service_account.Credentials.from_service_account_info(service_account_info)
-            self.storage_client = storage.Client(credentials=credentials, project=service_account_info.get("project_id"))
-        except Exception as e:
-            print(f"Failed to load Google credentials from env, falling back to default: {e}")
-            self.storage_client = storage.Client()
+        # Use centralized GCS client
+        from app.core.gcs_client import get_shared_gcs_client
+        self.storage_client = get_shared_gcs_client()
+        print("✅ Enhanced Image Service: Using credentials from environment variables")
 
         self.bucket = self.storage_client.bucket(self.gcs_bucket_name)
     

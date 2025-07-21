@@ -178,8 +178,14 @@ async def update_presentation(presentation_id: str, request: PresentationUpdateR
 
 @router.get("/presentation/user/{user_email}", response_model=List[PresentationResponse])
 async def get_user_presentations(user_email: str):
-    """Get all presentations for a user"""
+    """Get all presentations for a user by email"""
     presentations = await presentation_db_service.get_user_presentations(user_email)
+    return [PresentationResponse(**p) for p in presentations]
+
+@router.get("/presentation/user-id/{user_id}", response_model=List[PresentationResponse])
+async def get_user_presentations_by_id(user_id: int):
+    """Get all presentations for a user by user ID"""
+    presentations = await presentation_db_service.get_user_presentations_by_id(user_id)
     return [PresentationResponse(**p) for p in presentations]
 
 @router.delete("/presentation/{presentation_id}")

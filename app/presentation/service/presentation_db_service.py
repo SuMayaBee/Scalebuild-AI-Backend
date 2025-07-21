@@ -141,11 +141,41 @@ class PresentationDBService:
             db.close()
     
     async def get_user_presentations(self, user_email: str) -> List[Presentation]:
-        """Get all presentations for a user"""
+        """Get all presentations for a user by email"""
         await self.ensure_connected()
         
         # User management is not rewritten for SQLAlchemy as it's not in the code block
         raise NotImplementedError("User management not implemented")
+    
+    async def get_user_presentations_by_id(self, user_id: int) -> List[Dict[str, Any]]:
+        """Get all presentations for a user by user ID"""
+        await self.ensure_connected()
+        
+        db: Session = SessionLocal()
+        try:
+            presentations = db.query(Presentation).filter(Presentation.user_id == user_id).all()
+            
+            # Convert to dict format for API response
+            result = []
+            for presentation in presentations:
+                presentation_dict = {
+                    "id": str(presentation.id),
+                    "title": presentation.title,
+                    "content": presentation.content,
+                    "theme": presentation.theme,
+                    "language": presentation.language,
+                    "tone": presentation.tone,
+                    "userId": str(presentation.user_id),
+                    "createdAt": presentation.created_at,
+                    "updatedAt": presentation.updated_at,
+                    "isPublic": presentation.is_public,
+                    "slug": presentation.slug
+                }
+                result.append(self._format_presentation_result(presentation_dict))
+            
+            return result
+        finally:
+            db.close()
     
     async def delete_presentation(self, presentation_id: str) -> bool:
         """Delete a presentation"""
