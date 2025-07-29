@@ -1,0 +1,33 @@
+{
+    "cors": [
+        {
+            "origin": [
+                "*",
+                "http://localhost:3000",
+                "http://localhost:8000",
+                "https://scalebuild-ai-backend.onrender.com",
+                "https://ai-digital-business-builder.vercel.app",
+                "https://scalebuild-new.vercel.app"
+            ],
+            "method": [
+                "GET",
+                "HEAD",
+                "POST",
+                "PUT",
+                "DELETE",
+                "OPTIONS"
+            ],
+            "responseHeader": [
+                "Content-Type",
+                "Content-Length",
+                "Content-Disposition",
+                "Content-Range",
+                "Accept-Ranges",
+                "ETag",
+                "Last-Modified",
+                "Cache-Control"
+            ],
+            "maxAgeSeconds": 3600
+        }
+    ]
+}

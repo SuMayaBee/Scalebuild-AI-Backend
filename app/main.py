@@ -12,7 +12,7 @@ app = FastAPI()
 # Allow CORS for Next.js frontend on port 3000 and production
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "https://ai-digital-business-builder.vercel.app"],
+    allow_origins=["http://localhost:3000", "https://ai-digital-business-builder.vercel.app", "https://scalebuild-new.vercel.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -24,3 +24,9 @@ app.include_router(logo_router, tags=["logo"])
 app.include_router(document_router, tags=["documents"])
 app.include_router(short_video_router, tags=["short-video"])
 app.include_router(gcs_router, prefix="/gcs", tags=["gcs"])
+
+
+# Market Research
+# Competitor Analysis
+# Perform the latest and uptodate market research for this <industry>
+# perform the competitor analysis for this <company>
