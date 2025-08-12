@@ -11,10 +11,10 @@ from app.core.resend_routes import router as resend_router
 
 app = FastAPI()
 
-# Allow CORS for Next.js frontend on port 3000 and production
+# Allow CORS for all origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "https://ai-digital-business-builder.vercel.app", "https://scalebuild-new.vercel.app"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
