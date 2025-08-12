@@ -1,0 +1,175 @@
+{
+  "info": {
+    "name": "ScalebuildAI API",
+    "description": "Complete API collection for ScalebuildAI backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Sign Up",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"testpass123\",\n  \"fullname\": \"Test User\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/signup",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "signup"]
+            }
+          }
+        },
+        {
+          "name": "Sign In",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set(\"access_token\", response.access_token);",
+                  "    console.log(\"✅ Token saved:\", response.access_token.substring(0, 30) + \"...\");",
+                  "} else {",
+                  "    console.log(\"❌ Signin failed:\", pm.response.code);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"testpass123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/signin",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "signin"]
+            }
+          }
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/profile",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "profile"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "User Image",
+      "item": [
+        {
+          "name": "Upload Image",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/upload-image",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "upload-image"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "GCS Download",
+      "item": [
+        {
+          "name": "Download File",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"file_url\": \"https://storage.googleapis.com/deck123/your-file.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/gcs/download",
+              "host": ["{{base_url}}"],
+              "path": ["gcs", "download"]
+            }
+          }
+        },
+        {
+          "name": "Get File Info",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"file_url\": \"https://storage.googleapis.com/deck123/your-file.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/gcs/file-info",
+              "host": ["{{base_url}}"],
+              "path": ["gcs", "file-info"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

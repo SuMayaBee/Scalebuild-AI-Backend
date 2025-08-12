@@ -5,13 +5,29 @@ from app.core.security import get_password_hash, verify_password
 def get_user_by_email(db: Session, email: str):
     return db.query(User).filter(User.email == email).first()
 
-def create_user(db: Session, email: str, password: str):
+def create_user(db: Session, email: str, password: str, fullname: str = None):
     hashed_password = get_password_hash(password)
-    user = User(email=email, hashed_password=hashed_password)
+    user = User(email=email, hashed_password=hashed_password, fullname=fullname)
     db.add(user)
     db.commit()
     db.refresh(user)
     return user
+
+def update_user(db: Session, user_id: int, fullname: str = None, image_url: str = None):
+    user = db.query(User).filter(User.id == user_id).first()
+    if user:
+        if fullname is not None:
+            user.fullname = fullname
+        if image_url is not None:
+            user.image_url = image_url
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+        return user
+    return None
+
+def get_user_by_id(db: Session, user_id: int):
+    return db.query(User).filter(User.id == user_id).first()
 
 def authenticate_user(db: Session, email: str, password: str):
     user = get_user_by_email(db, email)

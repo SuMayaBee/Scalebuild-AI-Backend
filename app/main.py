@@ -6,6 +6,8 @@ from app.logo.routes import router as logo_router
 from app.document_generation.routes import router as document_router
 from app.short_video.routes import router as short_video_router
 from app.gcs.routes import router as gcs_router
+from app.core.email_routes import router as email_router
+from app.core.resend_routes import router as resend_router
 
 app = FastAPI()
 
@@ -24,6 +26,8 @@ app.include_router(logo_router, tags=["logo"])
 app.include_router(document_router, tags=["documents"])
 app.include_router(short_video_router, tags=["short-video"])
 app.include_router(gcs_router, prefix="/gcs", tags=["gcs"])
+app.include_router(email_router, prefix="/email", tags=["email"])
+app.include_router(resend_router, prefix="/resend", tags=["resend"])
 
 
 # Market Research

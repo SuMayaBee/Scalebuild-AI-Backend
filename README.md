@@ -950,3 +950,46 @@ This is the FastAPI backend for ScalebuildAI, using SQLAlchemy ORM and NeonDB (P
 - ✅ **Logo Design with Background Removal**
 - ✅ **Presentation Creation with AI Images**
 - ✅ **Short Video Generation** (Text-to-video AI)
+
+
+### Request Body
+
+#### Minimal Request (Required Fields Only)
+```json
+{
+  "to_email": "recipient@example.com",
+  "subject": "Your Email Subject",
+  "html_content": "<h1>Hello!</h1><p>Your email content here</p>"
+}
+```
+
+#### Full Request (All Fields)
+```json
+{
+  "to_email": "recipient@example.com",
+  "subject": "Your Email Subject",
+  "html_content": "<h1>Hello!</h1><p>Your email content here</p>",
+  "text_content": "Hello! Your email content here",
+  "from_email": "custom@scalebuild.ai",
+  "reply_to": "support@scalebuild.ai",
+  "tags": [
+    {"name": "category", "value": "notification"},
+    {"name": "campaign", "value": "welcome"}
+  ]
+}
+```
+
+### Resend 
+
+#### Success Response
+```json
+{
+  "success": true,
+  "message": "Email sent successfully via Resend",
+  "recipient": "recipient@example.com",
+  "email_id": "95f803b9-079a-4d65-b276-6a16c9136f64",
+  "data": {
+    "id": "95f803b9-079a-4d65-b276-6a16c9136f64"
+  }
+}
+```
