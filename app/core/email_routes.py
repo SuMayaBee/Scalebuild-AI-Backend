@@ -10,7 +10,7 @@ from app.core.email_schemas import (
     EmailResponse
 )
 from app.core.security import get_current_user
-from app.auth.models import User
+from app.auth.db_models import User
 
 router = APIRouter()
 

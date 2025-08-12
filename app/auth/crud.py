@@ -1,13 +1,13 @@
 from sqlalchemy.orm import Session
-from app.auth.models import User
+from app.auth.db_models import User
 from app.core.security import get_password_hash, verify_password
 
 def get_user_by_email(db: Session, email: str):
     return db.query(User).filter(User.email == email).first()
 
-def create_user(db: Session, email: str, password: str, fullname: str = None):
+def create_user(db: Session, email: str, password: str, name: str = None):
     hashed_password = get_password_hash(password)
-    user = User(email=email, hashed_password=hashed_password, fullname=fullname)
+    user = User(email=email, hashed_password=hashed_password, name=name)
     db.add(user)
     db.commit()
     db.refresh(user)
@@ -17,7 +17,7 @@ def update_user(db: Session, user_id: int, fullname: str = None, image_url: str 
     user = db.query(User).filter(User.id == user_id).first()
     if user:
         if fullname is not None:
-            user.fullname = fullname
+            user.name = fullname
         if image_url is not None:
             user.image_url = image_url
         db.add(user)

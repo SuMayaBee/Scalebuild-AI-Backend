@@ -3,8 +3,9 @@ from sqlalchemy.orm import Session
 from app.core.database import SessionLocal
 from app.auth import schemas, crud
 from app.core.security import create_access_token, get_current_user
-from app.auth.models import User
+from app.auth.db_models import User
 from app.auth.image_service import user_image_service
+from app.core.resend_service import resend_email_service
 import random
 
 router = APIRouter()
@@ -23,7 +24,7 @@ def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db_user = crud.get_user_by_email(db, user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email is already registered")
-    new_user = crud.create_user(db, user.email, user.password, user.fullname)
+    new_user = crud.create_user(db, user.email, user.password, user.name)
     return new_user
 
 @router.post("/signin", response_model=schemas.Token)
@@ -35,14 +36,29 @@ def signin(user: schemas.UserLogin, db: Session = Depends(get_db)):
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.post("/forgot-password")
-def forgot_password(request: schemas.ForgotPasswordRequest, db: Session = Depends(get_db)):
+async def forgot_password(request: schemas.ForgotPasswordRequest, db: Session = Depends(get_db)):
     user = crud.get_user_by_email(db, request.email)
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    # Generate an 8-digit numeric reset token
-    token = str(random.randint(10000000, 99999999))
+        # Don't reveal whether the email exists or not for security
+        return {"msg": "If the email exists, a password reset token has been sent"}
+    
+    # Generate a 4-digit numeric reset token
+    token = str(random.randint(1000, 9999))
     crud.set_reset_token(db, user, token)
-    return {"msg": "Password reset token generated", "token": token}
+    
+    try:
+        # Send reset token via email
+        resend_email_service.send_template_email(
+            to_email=user.email,
+            template_type="password_reset",
+            reset_token=token,
+            user_name=user.name or "User"
+        )
+        return {"msg": "If the email exists, a password reset token has been sent"}
+    except Exception as e:
+        # Log the error but don't expose it to the user
+        print(f"Failed to send reset email to {user.email}: {str(e)}")
+        return {"msg": "If the email exists, a password reset token has been sent"}
 
 @router.post("/reset-password")
 def reset_password(request: schemas.ResetPasswordRequest, db: Session = Depends(get_db)):
@@ -97,7 +113,7 @@ def update_user_profile(
     updated_user = crud.update_user(
         db, 
         current_user.id, 
-        fullname=user_update.fullname,
+        fullname=user_update.name,
         image_url=user_update.image_url
     )
     

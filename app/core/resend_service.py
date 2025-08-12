@@ -294,14 +294,7 @@ This message was sent through the ScalebuildAI contact form.
                 <p><strong>This token expires in:</strong> 1 hour</p>
             </div>
             
-            <p>Click the button below to reset your password:</p>
-            
-            <a href="{kwargs.get('reset_url', '#')}" class="btn">Reset Password</a>
-            
-            <div class="warning">
-                <p><strong>⚠️ Security Notice:</strong></p>
-                <p>If you didn't request this password reset, please ignore this email. Your password will remain unchanged.</p>
-            </div>
+       
         </div>
         
         <div class="footer">

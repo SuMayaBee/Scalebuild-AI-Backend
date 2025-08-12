@@ -5,12 +5,12 @@ from datetime import datetime
 class UserCreate(BaseModel):
     email: EmailStr
     password: str
-    fullname: Optional[str] = None
+    name: Optional[str] = None
 
 class UserRead(BaseModel):
     id: int
     email: EmailStr
-    fullname: Optional[str] = None
+    name: Optional[str] = None
     image_url: Optional[str] = None
     is_active: bool
     created_at: Optional[datetime] = None
@@ -19,7 +19,7 @@ class UserRead(BaseModel):
         from_attributes = True
 
 class UserUpdate(BaseModel):
-    fullname: Optional[str] = None
+    name: Optional[str] = None
     image_url: Optional[str] = None
 
 class UserLogin(BaseModel):
