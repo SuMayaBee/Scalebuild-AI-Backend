@@ -52,7 +52,7 @@ async def forgot_password(request: schemas.ForgotPasswordRequest, db: Session = 
             to_email=user.email,
             template_type="password_reset",
             reset_token=token,
-            user_name=user.name or "User"
+            name=user.name or "User"
         )
         return {"msg": "If the email exists, a password reset token has been sent"}
     except Exception as e:

@@ -12,7 +12,7 @@ class ResendEmailService:
         # Resend configuration from environment variables
         self.api_key = os.getenv("RESEND_API_KEY")
         self.sender_name = os.getenv("SENDER_NAME", "ScalebuildAI")
-        self.sender_email = os.getenv("SENDER_EMAIL", "noreply@yourdomain.com")
+        self.sender_email = os.getenv("SENDER_EMAIL", "noreply@scalebuild.ai")
         
         if not self.api_key:
             print("⚠️ Warning: Resend API key not configured. Set RESEND_API_KEY in .env")
@@ -79,16 +79,44 @@ class ResendEmailService:
             response = resend.Emails.send(email_params)
             
             print(f"📧 Resend API response: {response}")
+            print(f"📧 Response type: {type(response)}")
             
-            if response and response.get('id'):
-                print(f"✅ Email sent successfully to {to_email} with ID: {response.get('id')}")
-                return response
-            else:
-                print(f"❌ Invalid response from Resend API: {response}")
+            # Handle different response types
+            if response is None:
+                print("❌ Resend API returned None - possible API key or configuration issue")
                 raise HTTPException(
                     status_code=500,
-                    detail=f"Invalid response from Resend API: {response}"
+                    detail="Resend API returned None. Check API key and configuration."
                 )
+            
+            # Check if response is a string (error case)
+            if isinstance(response, str):
+                print(f"❌ Resend API returned string error: {response}")
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Resend API error: {response}"
+                )
+            
+            # Check if response is a dict with id
+            if isinstance(response, dict) and response.get('id'):
+                print(f"✅ Email sent successfully to {to_email} with ID: {response.get('id')}")
+                return response
+            
+            # Check if response has error information
+            if isinstance(response, dict) and 'error' in response:
+                error_msg = response.get('error', 'Unknown error')
+                print(f"❌ Resend API error: {error_msg}")
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Resend API error: {error_msg}"
+                )
+            
+            # Fallback for unexpected response format
+            print(f"❌ Unexpected response format from Resend API: {response}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Unexpected response from Resend API: {response}"
+            )
             
         except Exception as e:
             print(f"❌ Failed to send email via Resend: {str(e)}")
