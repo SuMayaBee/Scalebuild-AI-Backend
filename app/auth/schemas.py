@@ -22,6 +22,10 @@ class UserUpdate(BaseModel):
     name: Optional[str] = None
     image_url: Optional[str] = None
 
+class UserPasswordUpdate(BaseModel):
+    current_password: str
+    new_password: str
+
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
@@ -32,6 +36,9 @@ class Token(BaseModel):
 
 class ForgotPasswordRequest(BaseModel):
     email: EmailStr
+
+class ValidateResetTokenRequest(BaseModel):
+    token: str
 
 class ResetPasswordRequest(BaseModel):
     token: str

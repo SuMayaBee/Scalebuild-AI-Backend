@@ -60,12 +60,43 @@ async def forgot_password(request: schemas.ForgotPasswordRequest, db: Session = 
         print(f"Failed to send reset email to {user.email}: {str(e)}")
         return {"msg": "If the email exists, a password reset token has been sent"}
 
+@router.post("/validate-reset-token")
+def validate_reset_token(request: schemas.ValidateResetTokenRequest, db: Session = Depends(get_db)):
+    """Validate reset token and return user info for better UX"""
+    result = crud.validate_reset_token(db, request.token)
+    
+    if not result["valid"]:
+        raise HTTPException(status_code=400, detail="Invalid or expired reset token")
+    
+    return {
+        "valid": True,
+        "message": "Token is valid",
+        "user": {
+            "email": result["email"],
+            "name": result["name"]
+        }
+    }
+
 @router.post("/reset-password")
 def reset_password(request: schemas.ResetPasswordRequest, db: Session = Depends(get_db)):
-    user = crud.reset_password(db, request.token, request.new_password)
+    """Reset password using validated token"""
+    # First validate the token
+    validation_result = crud.validate_reset_token(db, request.token)
+    if not validation_result["valid"]:
+        raise HTTPException(status_code=400, detail="Invalid or expired reset token")
+    
+    # Reset the password
+    user = crud.reset_password_with_token(db, request.token, request.new_password)
     if not user:
-        raise HTTPException(status_code=400, detail="Invalid or expired token")
-    return {"msg": "Password reset successful"}
+        raise HTTPException(status_code=400, detail="Failed to reset password")
+    
+    return {
+        "message": "Password reset successful",
+        "user": {
+            "email": user.email,
+            "name": user.name
+        }
+    }
 
 @router.post("/upload-image")
 async def upload_user_image(
@@ -109,11 +140,11 @@ def update_user_profile(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Update user profile information."""
+    """Update user profile information (name and image only)."""
     updated_user = crud.update_user(
         db, 
         current_user.id, 
-        fullname=user_update.name,
+        name=user_update.name,  # Fixed parameter name
         image_url=user_update.image_url
     )
     
@@ -121,3 +152,24 @@ def update_user_profile(
         raise HTTPException(status_code=404, detail="User not found")
     
     return updated_user
+
+@router.put("/change-password")
+def change_password(
+    password_update: schemas.UserPasswordUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Change user password with current password verification."""
+    result = crud.update_user_password(
+        db,
+        current_user.id,
+        password_update.current_password,
+        password_update.new_password
+    )
+    
+    if result is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    elif result is False:
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+    
+    return {"message": "Password updated successfully"}

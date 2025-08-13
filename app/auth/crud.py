@@ -13,11 +13,11 @@ def create_user(db: Session, email: str, password: str, name: str = None):
     db.refresh(user)
     return user
 
-def update_user(db: Session, user_id: int, fullname: str = None, image_url: str = None):
+def update_user(db: Session, user_id: int, name: str = None, image_url: str = None):
     user = db.query(User).filter(User.id == user_id).first()
     if user:
-        if fullname is not None:
-            user.name = fullname
+        if name is not None:
+            user.name = name
         if image_url is not None:
             user.image_url = image_url
         db.add(user)
@@ -25,6 +25,23 @@ def update_user(db: Session, user_id: int, fullname: str = None, image_url: str 
         db.refresh(user)
         return user
     return None
+
+def update_user_password(db: Session, user_id: int, current_password: str, new_password: str):
+    """Update user password after verifying current password"""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        return None
+    
+    # Verify current password
+    if not verify_password(current_password, user.hashed_password):
+        return False  # Current password is incorrect
+    
+    # Update to new password
+    user.hashed_password = get_password_hash(new_password)
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
 
 def get_user_by_id(db: Session, user_id: int):
     return db.query(User).filter(User.id == user_id).first()
@@ -42,13 +59,30 @@ def set_reset_token(db: Session, user: User, token: str):
     db.refresh(user)
     return user
 
-def reset_password(db: Session, token: str, new_password: str):
+def validate_reset_token(db: Session, token: str):
+    """Validate if reset token exists and return user info without resetting password"""
+    user = db.query(User).filter(User.reset_token == token).first()
+    if user:
+        return {
+            "valid": True,
+            "user_id": user.id,
+            "email": user.email,
+            "name": user.name
+        }
+    return {"valid": False}
+
+def reset_password_with_token(db: Session, token: str, new_password: str):
+    """Reset password using validated token"""
     user = db.query(User).filter(User.reset_token == token).first()
     if user:
         user.hashed_password = get_password_hash(new_password)
-        user.reset_token = None
+        user.reset_token = None  # Clear the token after use
         db.add(user)
         db.commit()
         db.refresh(user)
         return user
     return None
+
+# Keep the old function for backward compatibility
+def reset_password(db: Session, token: str, new_password: str):
+    return reset_password_with_token(db, token, new_password)
