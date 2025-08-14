@@ -274,3 +274,114 @@ def update_privacy_policy_docs_url(db: Session, policy_id: int, docs_url: str):
         db.commit()
         db.refresh(policy)
     return policy
+
+# ==================== DELETE FUNCTIONS ====================
+
+def delete_business_proposal(db: Session, proposal_id: int) -> bool:
+    """Delete a business proposal by ID"""
+    proposal = db.query(BusinessProposal).filter(BusinessProposal.id == proposal_id).first()
+    if proposal:
+        db.delete(proposal)
+        db.commit()
+        return True
+    return False
+
+def delete_partnership_agreement(db: Session, agreement_id: int) -> bool:
+    """Delete a partnership agreement by ID"""
+    agreement = db.query(PartnershipAgreement).filter(PartnershipAgreement.id == agreement_id).first()
+    if agreement:
+        db.delete(agreement)
+        db.commit()
+        return True
+    return False
+
+def delete_nda(db: Session, nda_id: int) -> bool:
+    """Delete an NDA by ID"""
+    nda = db.query(NDA).filter(NDA.id == nda_id).first()
+    if nda:
+        db.delete(nda)
+        db.commit()
+        return True
+    return False
+
+def delete_contract(db: Session, contract_id: int) -> bool:
+    """Delete a contract by ID"""
+    contract = db.query(Contract).filter(Contract.id == contract_id).first()
+    if contract:
+        db.delete(contract)
+        db.commit()
+        return True
+    return False
+
+def delete_terms_of_service(db: Session, terms_id: int) -> bool:
+    """Delete terms of service by ID"""
+    terms = db.query(TermsOfService).filter(TermsOfService.id == terms_id).first()
+    if terms:
+        db.delete(terms)
+        db.commit()
+        return True
+    return False
+
+def delete_privacy_policy(db: Session, policy_id: int) -> bool:
+    """Delete a privacy policy by ID"""
+    policy = db.query(PrivacyPolicy).filter(PrivacyPolicy.id == policy_id).first()
+    if policy:
+        db.delete(policy)
+        db.commit()
+        return True
+    return False
+
+def delete_all_user_documents(db: Session, user_id: int) -> Dict[str, int]:
+    """Delete all documents for a specific user"""
+    deleted_counts = {
+        "business_proposals": 0,
+        "partnership_agreements": 0,
+        "ndas": 0,
+        "contracts": 0,
+        "terms_of_service": 0,
+        "privacy_policies": 0
+    }
+    
+    try:
+        # Delete business proposals
+        business_proposals = db.query(BusinessProposal).filter(BusinessProposal.user_id == user_id).all()
+        for proposal in business_proposals:
+            db.delete(proposal)
+            deleted_counts["business_proposals"] += 1
+        
+        # Delete partnership agreements
+        agreements = db.query(PartnershipAgreement).filter(PartnershipAgreement.user_id == user_id).all()
+        for agreement in agreements:
+            db.delete(agreement)
+            deleted_counts["partnership_agreements"] += 1
+        
+        # Delete NDAs
+        ndas = db.query(NDA).filter(NDA.user_id == user_id).all()
+        for nda in ndas:
+            db.delete(nda)
+            deleted_counts["ndas"] += 1
+        
+        # Delete contracts
+        contracts = db.query(Contract).filter(Contract.user_id == user_id).all()
+        for contract in contracts:
+            db.delete(contract)
+            deleted_counts["contracts"] += 1
+        
+        # Delete terms of service
+        terms_list = db.query(TermsOfService).filter(TermsOfService.user_id == user_id).all()
+        for terms in terms_list:
+            db.delete(terms)
+            deleted_counts["terms_of_service"] += 1
+        
+        # Delete privacy policies
+        policies = db.query(PrivacyPolicy).filter(PrivacyPolicy.user_id == user_id).all()
+        for policy in policies:
+            db.delete(policy)
+            deleted_counts["privacy_policies"] += 1
+        
+        db.commit()
+        return deleted_counts
+        
+    except Exception as e:
+        db.rollback()
+        raise e
