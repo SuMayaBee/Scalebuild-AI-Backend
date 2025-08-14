@@ -6,7 +6,7 @@ from app.short_video.models import (
     ShortVideoResponse,
     VideoGenerationResponse
 )
-from app.short_video.services.video_generation_service import video_generation_service
+from app.short_video.services.gemini_video_service import gemini_video_service
 from app.short_video.crud import (
     create_short_video,
     get_short_video,
@@ -21,27 +21,25 @@ router = APIRouter()
 async def generate_short_video(request: ShortVideoRequest, db: Session = Depends(get_db)):
     """Generate a short video using AI and save to database"""
     try:
-        # Generate video using Veo 3.0
-        video_url = await video_generation_service.generate_video(
-            prompt=request.prompt,
-            aspect_ratio=request.aspect_ratio,
-            duration=request.duration,
-            audio_generation=request.audio_generation,
-            watermark=request.watermark,
-            person_generation=request.person_generation
+        print(f"🎬 Generating short video for user {request.user_id}")
+        print(f"📝 Prompt: {request.prompt}")
+        
+        # Generate video using Gemini with Veo 3.0
+        video_url = await gemini_video_service.generate_video(
+            prompt=request.prompt
         )
         
-        # Save to database
+        # Save to database with fixed values as requested
         video_record = create_short_video(
             db=db,
             user_id=request.user_id,
             prompt=request.prompt,
             video_url=video_url,
-            aspect_ratio=request.aspect_ratio,
-            duration=request.duration,
-            audio_generation=request.audio_generation,
-            watermark=request.watermark,
-            person_generation=request.person_generation
+            aspect_ratio="16:9",
+            duration=8,
+            audio_generation=True,  # Boolean for database
+            watermark=False,        # Boolean for database
+            person_generation="allow-all"
         )
         
         return ShortVideoResponse(
@@ -59,6 +57,7 @@ async def generate_short_video(request: ShortVideoRequest, db: Session = Depends
         )
         
     except Exception as e:
+        print(f"❌ Video generation error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Video generation failed: {str(e)}")
 
 @router.get("/short-video/{video_id}", response_model=ShortVideoResponse)
@@ -114,19 +113,29 @@ async def delete_short_video_endpoint(video_id: int, db: Session = Depends(get_d
 async def check_video_service_status():
     """Check if the video generation service is available"""
     try:
-        # Simple health check
+        # Test the actual Gemini video service connection
+        service_healthy = gemini_video_service.test_connection()
+        
         return {
-            "status": "healthy",
-            "service": "Veo 3.0 Video Generation",
+            "status": "healthy" if service_healthy else "unhealthy",
+            "service": "Gemini Video Generation with Veo 3.0",
             "model": "veo-3.0-generate-preview",
-            "available_options": {
-                "aspect_ratios": ["16:9", "9:16", "1:1"],
-                "durations": ["4", "8"],
-                "person_generation": ["allow_all", "allow_none", "allow_some"]
+            "api": "google.genai",
+            "fixed_settings": {
+                "aspect_ratio": "16:9",
+                "duration": "8 seconds",
+                "audio_generation": "Yes",
+                "watermark": "No",
+                "person_generation": "allow-all"
+            },
+            "request_format": {
+                "user_id": "integer",
+                "prompt": "string (required)"
             }
         }
     except Exception as e:
         return {
             "status": "unhealthy",
-            "error": str(e)
+            "error": str(e),
+            "service": "Gemini Video Generation with Veo 3.0"
         }

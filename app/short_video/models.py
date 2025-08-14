@@ -5,6 +5,11 @@ from datetime import datetime
 class ShortVideoRequest(BaseModel):
     user_id: int
     prompt: str
+
+class ShortVideoRequestFull(BaseModel):
+    """Full request model for backward compatibility"""
+    user_id: int
+    prompt: str
     aspect_ratio: Optional[str] = "16:9"
     duration: Optional[str] = "8"
     audio_generation: Optional[bool] = True
