@@ -125,7 +125,8 @@ class UnifiedPresentationResponse(BaseModel):
     error: Optional[str] = None
     
     # Database information
-    database_id: Optional[int] = None
+    presentation_id: Optional[int] = None  # Renamed from database_id for clarity
+    database_id: Optional[int] = None  # Keep for backward compatibility
     database_error: Optional[str] = None
     
     # Metadata

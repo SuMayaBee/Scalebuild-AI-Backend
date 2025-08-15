@@ -215,7 +215,8 @@ async def generate_unified_presentation(
                     tone=tone or "Professional"
                 )
                 
-                # Add database ID to result
+                # Add presentation ID to result (both fields for clarity and backward compatibility)
+                result["presentation_id"] = saved_presentation.id
                 result["database_id"] = saved_presentation.id
                 print(f"✅ Presentation saved to database with ID: {saved_presentation.id}")
                 
