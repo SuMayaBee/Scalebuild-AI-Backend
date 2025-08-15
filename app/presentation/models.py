@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 
@@ -89,3 +89,47 @@ class UserResponse(BaseModel):
     image: Optional[str] = None
     createdAt: str
     updatedAt: str
+
+# New unified presentation generation model
+class UnifiedPresentationRequest(BaseModel):
+    # Required fields
+    slides_count: int = Field(..., ge=3, le=20, description="Number of slides (3-20)")
+    prompt: str = Field(..., min_length=10, description="Main presentation topic/prompt")
+    
+    # Optional fields
+    color_theme: Optional[str] = Field("default", description="Presentation color theme")
+    website_urls: Optional[List[str]] = Field([], description="Website URLs for context")
+    context_sources: Optional[List[str]] = Field([], description="Additional context sources")
+    industry_sector: Optional[str] = Field(None, description="Industry sector")
+    one_line_pitch: Optional[str] = Field(None, description="One-line pitch")
+    problem_solving: Optional[str] = Field(None, description="Problem you're solving")
+    unique_solution: Optional[str] = Field(None, description="Your unique solution")
+    target_audience: Optional[str] = Field(None, description="Target audience")
+    business_model: Optional[str] = Field(None, description="Business model")
+    revenue_plan: Optional[str] = Field(None, description="Revenue plan")
+    competitors: Optional[str] = Field(None, description="Competitors analysis")
+    vision: Optional[str] = Field(None, description="Company/project vision")
+    
+    # Presentation settings
+    language: Optional[str] = Field("English", description="Presentation language")
+    tone: Optional[str] = Field("Professional", description="Presentation tone")
+    generate_images: Optional[bool] = Field(True, description="Generate AI images for slides")
+
+class UnifiedPresentationResponse(BaseModel):
+    success: bool
+    presentation_xml: Optional[str] = None
+    slides_count: int
+    processing_time: float
+    generated_images: List[Dict[str, Any]] = []
+    context_sources_used: List[Dict[str, Any]] = []
+    error: Optional[str] = None
+    
+    # Database information
+    database_id: Optional[int] = None
+    database_error: Optional[str] = None
+    
+    # Metadata
+    prompt: str
+    theme: str
+    language: str
+    tone: str

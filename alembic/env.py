@@ -39,6 +39,7 @@ from app.document_generation.db_models import (  # noqa: F401
     Contract, TermsOfService, PrivacyPolicy
 )
 from app.short_video.db_models import ShortVideo  # noqa: F401
+from Rag.db_models import RAGDocument, RAGDocumentChunk, RAGChatSession, RAGChatMessage  # noqa: F401
 
 target_metadata = Base.metadata
 

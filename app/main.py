@@ -8,6 +8,7 @@ from app.short_video.routes import router as short_video_router
 from app.gcs.routes import router as gcs_router
 from app.core.email_routes import router as email_router
 from app.core.resend_routes import router as resend_router
+from Rag.routes import router as rag_router
 
 app = FastAPI()
 
@@ -28,6 +29,7 @@ app.include_router(short_video_router, tags=["short-video"])
 app.include_router(gcs_router, prefix="/gcs", tags=["gcs"])
 app.include_router(email_router, prefix="/email", tags=["email"])
 app.include_router(resend_router, prefix="/resend", tags=["resend"])
+app.include_router(rag_router, tags=["rag"])
 
 
 # Market Research
